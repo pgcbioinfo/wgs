@@ -5,16 +5,19 @@ import { MarkdownModule } from 'ngx-markdown';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
-import { MainModule } from './main/main.module';
+import { CoreModule } from './core/core.module';
+import { NavbarModule } from './navbar/navbar.module';
 
 @NgModule({
   declarations: [
-    AppComponent,
+    AppComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    MarkdownModule.forRoot()
+    MarkdownModule.forRoot(),
+    CoreModule,
+    NavbarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

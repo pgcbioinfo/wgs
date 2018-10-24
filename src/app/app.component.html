@@ -1,7 +1,9 @@
 <div class="container-fluid">
   <div class="row">
-    <div class="col-md-3 d-none d-md-block bg-light px-0"></div>
-    <div class="col-md-9">
+    <div class="col-md-auto d-none d-md-block px-0" style="width:300px;">
+      <app-navbar></app-navbar>
+    </div>
+    <div class="col" style="overflow-x:auto; max-width:800px">
       <router-outlet></router-outlet>
     </div>
   </div>

@@ -1,0 +1,83 @@
+.sidebar {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  background-color: #343131;
+  overflow-y: auto;
+}
+
+@supports ((position: -webkit-sticky) or (position: sticky)) {
+  .sidebar {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+}
+
+.sidebar .sidebar-header {
+  border-right: solid 1px #c9c9c9;
+  text-align: center;
+  background-color: #eaf2f8;
+  padding: 12px;
+  margin-bottom: 10px;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.sidebar .sidebar-header .sidebar-logo {
+  width: 100%;
+  padding-bottom: 20px;
+}
+
+.sidebar .sidebar-header .version {
+  color: #777777;
+}
+
+.sidebar a {
+  outline: none;
+  cursor: pointer;
+}
+
+.nav .nav-link {
+  color: #b3b3b3;
+  padding: 0.25rem 1.5rem;
+}
+
+.nav-item .nav-link.active {
+  color: #404040;
+  background-color: #fcfcfc;
+  font-weight: bold;
+  border-top: solid 1px #c9c9c9;
+  border-bottom: solid 1px #c9c9c9;
+}
+
+.nav-link:hover {
+  background-color: #4e4a4a;
+}
+
+.nav-item .nav-link.active:hover {
+  background-color: #fcfcfc;
+}
+
+.nav-subitem .nav-link {
+  padding-left: 2.8rem;
+}
+
+.nav-subitem .nav-link.active {
+  color: gray;
+  background-color: #e3e3e3;
+  border-right: solid 1px #c9c9c9;
+}
+
+.nav-subitem .nav-link.active:hover {
+  background-color: #d6d6d6;
+}
+
+.sidebar-heading {
+  font-size: .75rem;
+}
+
+
