@@ -1,0 +1,218 @@
+<markdown ngPreserveWhitespaces>
+## 1. Quality Control
+
+### 1.1 Setting Up
+
+Copy raw *.fastq* files from */home/cfb/training/data/raw* to your home directory.
+
+```
+mkdir ~/data #Create data directory
+mkdir ~/qc #Create quality control directory
+cp /tmp/data/*fq ~/data #Copy data from repo to data in your home dir
+chmod 400 ~/data/* #Change data permissions to read-only
+```
+
+### 1.2 Running Quality Control
+
+#### Tool: Fastp
+
+Quality control and preprocessing of sequencing data are critical to obtaining high-quality and high-confidence variants in downstream data analysis. Data can suffer from adapter contamination, base content biases and overrepresented sequences. Even worse, library preparation and sequencing steps always involve errors and can cause inaccurate representations of original nucleic acid sequences.
+
+In the past, multiple tools were employed for Fastq data quality control and preprocessing. A typical combination was the use of [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) for quality control, [Cutadapt](https://cutadapt.readthedocs.io/en/stable/guide.html)  for adapter trimming and [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic) for read pruning and filtering. September this year, a tool called [Fastp](https://github.com/OpenGene/fastp) was created that does all these steps, and allows multi-threading which makes the processing of reads significantly faster.
+
+```
+fastp --in1 ~/data/reads1.fq --out1 ~/qc/reads1_fastp.fq --in2 ~/data/reads2.fq \
+    --out2 ~/qc/reads2_fastp.fq
+mv fastp.* ~/qc
+```
+
+Open the *.html* files using a browser.
+
+**Guide Questions:**
+
+* Is the initial data quality good enough for downstream analysis?
+* How many sequence reads are there initially?
+* What is the initial sequence length?
+* Are there still adapter contamination in the raw sequence reads?
+* How many paired sequences were left after quality control?
+* How many orphaned reads were left after quality control?
+* What is the minimum read length after quality control?
+* What is the maximum read length after quality control?
+* How many reads (and what percent of the total number of reads) were filtered out after quality control?
+
+## 2. Genome Assembly
+
+### 2.1 Assembly
+
+#### Tool: SPAdes
+
+[SPAdes](http://cab.spbu.ru/software/spades/) is a short-read assembler specifically designed for bacterial genomes, and has become very popular in recent years because of its performance and ease of use. It has a reputation for producing good assemblies, and can be run using one simple command.
+
+```
+spades.py -1 ~/qc/reads1_fastp.fq -2 ~/qc/reads2_fastp.fq -o ~/assembly -t 4 \
+    -m 20 --careful
+```
+
+SPAdes creates two assemblies, **contigs.fasta** and **scaffolds.fasta**. They will be found in the *__~/assembly__* directory.
+
+### 2.2 Quality Assessment
+
+#### Tool: QUAST
+
+Now that you have generated several assemblies, you need to assess their quality. We can do this with a tool called [QUAST](http://bioinf.spbau.ru/quast), which simply analyzes an assembly, calculates metrics such as the assembly length and number of contigs, and generates a report.
+
+The following commands will take the assemblies you generated using SPAdes, and generate reports located in subdirectories of *__~/assessment__*.
+
+```
+quast.py -o ~/assessment/contigs -t 4 ~/assembly/contigs.fasta
+quast.py -o ~/assessment/scaffolds -t 4 ~/assembly/scaffolds.fasta
+```
+
+**Guide Questions:**
+
+* What is the best assembly based on total assembly length?
+* What is the best assembly based on the number of contigs?
+* What is the best assembly based on the length of the largest contig?
+* What is the best assembly based on N50?
+
+### 2.3 Mapping Reads to Assembly
+
+#### Tools: Bowtie 2, SAMtools
+
+At this point, your assembly is complete - you can move on to other steps like genome annotation. But for instruction purposes, it helps to visualize the assembly you created. To do this, first we'll map (i.e. align) the filtered reads to the SPAdes assembly you created, using a suite of tools called [Bowtie 2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml). The tool `bowtie2-build` indexes the reference sequence, while `bowtie2` performs the actual alignment.
+
+The output will be a file called **spades_assembly.sam**, which is in the SAM (Sequence Alignment Map) format. Create and go into the directory *__~/mapping__* before running the Bowtie 2 commands. This is where the output will be located.
+
+```
+mkdir ~/mapping
+cd ~/mapping
+bowtie2-build --threads 4 ~/assembly/scaffolds.fasta spades_assembly
+bowtie2 -p 4 -x spades_assembly -1 ~/qc/reads1_fastp.fq -2 ~/qc/reads2_fastp.fq \
+    -S spades_assembly.sam
+```
+
+Next, we'll pre-process the alignment for visualization, using the tool suite [SAMtools](http://www.htslib.org/). We'll be using the following utilities:
+
+Tool | What it does
+---- | ------------
+`samtools view` | Convert to BAM (Binary Alignment Map) format
+`samtools sort` | Sort BAM file based on position in alignment
+`samtools index` | Create an index (`.bai` file) for fast look-up
+
+Here are the commands (make sure you're still in *__~/mapping__*):
+
+```
+samtools view -bS spades_assembly.sam > spades_assembly.bam
+samtools sort spades_assembly.bam -o spades_assembly.sorted.bam
+samtools index spades_assembly.sorted.bam
+```
+
+### 2.4 Visualization
+
+#### Tool: Tablet
+
+Now that we have aligned the reads to the assembly and pre-processed them, we can proceed to visualization. To see the alignment, we will use a lightweight, high-performance graphical viewer called [Tablet](https://ics.hutton.ac.uk/tablet/). We can start Tablet by invoking a simple command:
+
+```
+tablet
+```
+
+Then simply load the aligned reads, along with the assembled genome as reference:
+
+* Tablet -> Open Assembly
+    + Primary assembly file: `~/mapping/spades_assembly.sorted.bam`
+    + Reference/consensus file: `~/assembly/scaffolds.fasta`
+
+#### Tool: Bandage
+
+A different way of examining your assembly is by visualizing the assembly graph, which you can do with another graphical viewer called [Bandage](https://rrwick.github.io/Bandage/). Many assemblers automatically produce a file containing the assembly graph; in SPAdes this will be **assembly_graph.fastg**. Just start Bandage and load the file of your choice.
+
+```
+Bandage
+```
+
+* Bandage -> File -> Load Graph -> `~/assembly/assembly_graph.fastg`
+* Click on 'Draw graph'
+
+See [this site](https://github.com/rrwick/Bandage/wiki/Getting-started) for instructions on how to rotate and manipulate the assembly graph. Try experimenting with the different visualization features of the software.
+
+
+## 3. Genome Annotation
+
+### 3.1 Setting Up
+
+First, we will create the directory *__annot__* inside our home directory. We will then move to this directory. This will be our new work directory.
+
+```
+mkdir ~/annot
+cd ~/annot
+```
+
+### 3.2 Running Annotation
+
+#### Tool: Prokka
+
+To annotate our genome assembly, we will use the tool [Prokka](http://www.vicbioinformatics.com/software.prokka.shtml). This tool is designed to coordinate a number of pre-existing tools in order to reliably predict genomic features for bacterial, archaeal, and viral sequences.
+
+For this exercise, we will use the assembly generated using the tool SPAdes. The output files, all of which will contain the prefix *__prokka__*, will be placed inside the directory *__~/annot/prokka__*. The procedure will use a maximum of four (4) computing cores.
+
+```
+prokka --prefix prokka --cpus 4 ~/assembly/scaffolds.fasta
+
+```
+
+**Workflow Description:**
+
+The Prokka workflow by default will run the following tools:
+
+1. [Aragorn](http://mbio-serv2.mbioekol.lu.se/ARAGORN/) to predict tRNAs;
+2. [Barnap](https://github.com/tseemann/barrnap) to predict rRNAs;
+3. [Prodigal](https://github.com/hyattpd/Prodigal) to predict protein coding sequences;
+4. [Blast](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/) for sequence similarity search; and
+5. [Hmmer](http://hmmer.org/) for sequence motif search.
+
+**Expected Outputs:**
+
+After running Prokka, the following output files will be generated:
+
+
+Output File | Content Description
+----------- | -------------------
+`*.fna`       | FASTA file of original input contigs (nucleotide)
+`*.faa`       | FASTA file of translated coding genes (protein)
+`*.ffn`       | FASTA file of all genomic features (nucleotide)
+`*.fsa`       | Contig sequences for submission (nucleotide)
+`*.tbl`       | Feature table for submission
+`*.sqn`       | Sequin editable file for submission
+`*.gbk`       | Genbank file containing sequences and annotations
+`*.gff`       | GFF v3 file containing sequences and annotations
+`*.log`         | Log file of Prokka processing output
+`*.txt`             | Annotation summary statistics
+
+
+### 3.3 Visualization
+
+#### Tool: Artemis
+
+We can view the annotation by loading the *__prokka.gff__* output into the tool [Artemis](https://www.sanger.ac.uk/science/tools/artemis). We can start Artemis by invoking the following command:
+
+```
+art
+```
+
+A window will appear and we will open the input annotation file from there.
+
+* File -> Open ... -> `~/annot/prokka/prokka.gff`
+
+To learn more about how to explore annotations in Artemis, you can follow [this link](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.99.6409&rep=rep1&type=pdf).
+
+**Guide Questions:**
+
+1. How many protein coding sequences were predicted?
+2. How many rRNA genes were predicted?
+3. How many tRNA genes were predicted?
+4. Do you think the assemblies are correct based on the annotated genes? Why or why not? How can you check if the annotations are correct?
+
+
+</markdown>
+
