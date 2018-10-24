@@ -5,7 +5,7 @@
 
 Copy raw *.fastq* files from */home/cfb/training/data/raw* to your home directory.
 
-```
+```bash
 mkdir ~/data #Create data directory
 mkdir ~/qc #Create quality control directory
 cp /tmp/data/*fq ~/data #Copy data from repo to data in your home dir
@@ -20,7 +20,7 @@ Quality control and preprocessing of sequencing data are critical to obtaining h
 
 In the past, multiple tools were employed for Fastq data quality control and preprocessing. A typical combination was the use of [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) for quality control, [Cutadapt](https://cutadapt.readthedocs.io/en/stable/guide.html)  for adapter trimming and [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic) for read pruning and filtering. September this year, a tool called [Fastp](https://github.com/OpenGene/fastp) was created that does all these steps, and allows multi-threading which makes the processing of reads significantly faster.
 
-```
+```bash
 fastp --in1 ~/data/reads1.fq --out1 ~/qc/reads1_fastp.fq --in2 ~/data/reads2.fq \
     --out2 ~/qc/reads2_fastp.fq
 mv fastp.* ~/qc
@@ -48,7 +48,7 @@ Open the *.html* files using a browser.
 
 [SPAdes](http://cab.spbu.ru/software/spades/) is a short-read assembler specifically designed for bacterial genomes, and has become very popular in recent years because of its performance and ease of use. It has a reputation for producing good assemblies, and can be run using one simple command.
 
-```
+```bash
 spades.py -1 ~/qc/reads1_fastp.fq -2 ~/qc/reads2_fastp.fq -o ~/assembly -t 4 \
     -m 20 --careful
 ```
@@ -63,7 +63,7 @@ Now that you have generated several assemblies, you need to assess their quality
 
 The following commands will take the assemblies you generated using SPAdes, and generate reports located in subdirectories of *__~/assessment__*.
 
-```
+```bash
 quast.py -o ~/assessment/contigs -t 4 ~/assembly/contigs.fasta
 quast.py -o ~/assessment/scaffolds -t 4 ~/assembly/scaffolds.fasta
 ```
@@ -83,7 +83,7 @@ At this point, your assembly is complete - you can move on to other steps like g
 
 The output will be a file called **spades_assembly.sam**, which is in the SAM (Sequence Alignment Map) format. Create and go into the directory *__~/mapping__* before running the Bowtie 2 commands. This is where the output will be located.
 
-```
+```bash
 mkdir ~/mapping
 cd ~/mapping
 bowtie2-build --threads 4 ~/assembly/scaffolds.fasta spades_assembly
@@ -101,7 +101,7 @@ Tool | What it does
 
 Here are the commands (make sure you're still in *__~/mapping__*):
 
-```
+```bash
 samtools view -bS spades_assembly.sam > spades_assembly.bam
 samtools sort spades_assembly.bam -o spades_assembly.sorted.bam
 samtools index spades_assembly.sorted.bam
@@ -113,7 +113,7 @@ samtools index spades_assembly.sorted.bam
 
 Now that we have aligned the reads to the assembly and pre-processed them, we can proceed to visualization. To see the alignment, we will use a lightweight, high-performance graphical viewer called [Tablet](https://ics.hutton.ac.uk/tablet/). We can start Tablet by invoking a simple command:
 
-```
+```bash
 tablet
 ```
 
@@ -127,7 +127,7 @@ Then simply load the aligned reads, along with the assembled genome as reference
 
 A different way of examining your assembly is by visualizing the assembly graph, which you can do with another graphical viewer called [Bandage](https://rrwick.github.io/Bandage/). Many assemblers automatically produce a file containing the assembly graph; in SPAdes this will be **assembly_graph.fastg**. Just start Bandage and load the file of your choice.
 
-```
+```bash
 Bandage
 ```
 
@@ -143,7 +143,7 @@ See [this site](https://github.com/rrwick/Bandage/wiki/Getting-started) for inst
 
 First, we will create the directory *__annot__* inside our home directory. We will then move to this directory. This will be our new work directory.
 
-```
+```bash
 mkdir ~/annot
 cd ~/annot
 ```
@@ -156,7 +156,7 @@ To annotate our genome assembly, we will use the tool [Prokka](http://www.vicbio
 
 For this exercise, we will use the assembly generated using the tool SPAdes. The output files, all of which will contain the prefix *__prokka__*, will be placed inside the directory *__~/annot/prokka__*. The procedure will use a maximum of four (4) computing cores.
 
-```
+```bash
 prokka --prefix prokka --cpus 4 ~/assembly/scaffolds.fasta
 
 ```
@@ -196,7 +196,7 @@ Output File | Content Description
 
 We can view the annotation by loading the *__prokka.gff__* output into the tool [Artemis](https://www.sanger.ac.uk/science/tools/artemis). We can start Artemis by invoking the following command:
 
-```
+```bash
 art
 ```
 
