@@ -8,6 +8,9 @@ import { PageScrollInstance, PageScrollService, PageScrollConfig } from 'ngx-pag
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent implements OnInit {
+  public parent = 0;
+  public child = 0;
+
   @ViewChild('container')
   private container: ElementRef;
 
