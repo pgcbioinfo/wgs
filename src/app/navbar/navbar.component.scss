@@ -1,3 +1,6 @@
+.title {
+  font-size: 1rem;
+}
 .sidebar {
   position: relative;
   width: 100%;
@@ -26,7 +29,7 @@
 .sidebar .sidebar-header {
   border-right: solid 1px #c9c9c9;
   text-align: center;
-  background-color: #eaf2f8;
+  background-color: #efefef;
   padding: 12px;
   margin-bottom: 10px;
   font-size: 0.875rem;
@@ -52,17 +55,45 @@
   padding: 0.25rem 1.5rem;
 }
 
-.nav-item .nav-link.active {
-  color: #404040;
+.nav .nav-link:hover {
+  background-color: #4e4a4a;
+}
+
+.nav .nav-item.active {
   background-color: #fcfcfc;
+}
+
+.nav .nav-item.active > .nav-link {
+  color: #404040;
   font-weight: bold;
   border-top: solid 1px #c9c9c9;
   border-bottom: solid 1px #c9c9c9;
 }
 
-.nav-link:hover {
-  background-color: #4e4a4a;
+.nav .nav-item.active > .nav-link:hover {
+  background-color: #fcfcfc;
 }
+
+.nav .nav-item .nav-subitem > .nav-link {
+  padding-left: 2.5rem;
+}
+
+.nav .nav-item.active .nav-subitem > .nav-link:hover {
+  background-color: #d6d6d6;
+}
+
+.nav .nav-item.active .nav-subitem > .nav-link {
+  color: #404040;
+  background-color: #e3e3e3;
+  border-right: solid 1px #c9c9c9;
+}
+
+.nav .nav-item.active .nav-subitem > .nav-link.active {
+  font-weight: bold;
+  background-color: #c9c9c9;
+}
+
+/*
 
 .nav-item .nav-link.active:hover {
   background-color: #fcfcfc;
@@ -81,6 +112,7 @@
 .nav-subitem .nav-link.active:hover {
   background-color: #d6d6d6;
 }
+*/
 
 .sidebar-heading {
   font-size: .75rem;
