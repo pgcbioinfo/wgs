@@ -1,6 +1,8 @@
-<markdown ngPreserveWhitespaces>
+<markdown class="markdown" ngPreserveWhitespaces>
 ## 1. Quality Control
+</markdown>
 
+<markdown class="markdown" ngPreserveWhitespaces>
 ### 1.1 Setting Up
 
 Copy raw *.fastq* files from */home/cfb/training/data/raw* to your home directory.
@@ -11,7 +13,9 @@ mkdir ~/qc #Create quality control directory
 cp /tmp/data/*fq ~/data #Copy data from repo to data in your home dir
 chmod 400 ~/data/* #Change data permissions to read-only
 ```
+</markdown>
 
+<markdown ngPreserveWhitespaces>
 ### 1.2 Running Quality Control
 
 #### Tool: Fastp
@@ -40,7 +44,13 @@ Open the *.html* files using a browser.
 * What is the maximum read length after quality control?
 * How many reads (and what percent of the total number of reads) were filtered out after quality control?
 
+</markdown>
+
+<markdown ngPreserveWhitespaces>
 ## 2. Genome Assembly
+</markdown>
+
+<markdown ngPreserveWhitespaces>
 
 ### 2.1 Assembly
 
@@ -74,6 +84,9 @@ quast.py -o ~/assessment/scaffolds -t 4 ~/assembly/scaffolds.fasta
 * What is the best assembly based on the number of contigs?
 * What is the best assembly based on the length of the largest contig?
 * What is the best assembly based on N50?
+</markdown>
+
+<markdown ngPreserveWhitespaces>
 
 ### 2.3 Mapping Reads to Assembly
 
@@ -106,6 +119,9 @@ samtools view -bS spades_assembly.sam > spades_assembly.bam
 samtools sort spades_assembly.bam -o spades_assembly.sorted.bam
 samtools index spades_assembly.sorted.bam
 ```
+</markdown>
+
+<markdown ngPreserveWhitespaces>
 
 ### 2.4 Visualization
 
@@ -136,8 +152,14 @@ Bandage
 
 See [this site](https://github.com/rrwick/Bandage/wiki/Getting-started) for instructions on how to rotate and manipulate the assembly graph. Try experimenting with the different visualization features of the software.
 
+</markdown>
+
+<markdown ngPreserveWhitespaces>
 
 ## 3. Genome Annotation
+</markdown>
+
+<markdown ngPreserveWhitespaces>
 
 ### 3.1 Setting Up
 
@@ -147,6 +169,9 @@ First, we will create the directory *__annot__* inside our home directory. We wi
 mkdir ~/annot
 cd ~/annot
 ```
+</markdown>
+
+<markdown ngPreserveWhitespaces>
 
 ### 3.2 Running Annotation
 
@@ -189,6 +214,9 @@ Output File | Content Description
 `*.log`         | Log file of Prokka processing output
 `*.txt`             | Annotation summary statistics
 
+</markdown>
+
+<markdown ngPreserveWhitespaces>
 
 ### 3.3 Visualization
 
