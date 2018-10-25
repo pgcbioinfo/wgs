@@ -1,53 +1,51 @@
 <nav class="sidebar">
-  <div class="sidebar-sticky">
-    <div class="sidebar-header">
-      <img class="sidebar-logo" src="assets/img/logo.png" />
-      <div class="title">Introduction to Bioinformatics: Assembly and Annotation Hands-On</div>
-      <div class="version">v1.0</div>
-    </div>
-    <ul class="nav flex-column">
-      <li class="nav-item">
-        <a class="nav-link" (click)="scrollTo('#1-quality-control'); parent=1; child=0" [class.active]="(parent==1)">Quality Control</a>
-        <ul class="nav flex-column">
-          <li class="nav-subitem">
-            <a class="nav-link" (click)="scrollTo('#1-1-setting-up'); parent=1; child=1" [class.active]="(parent==1) && (child==1)">Setting Up</a>
-          </li>
-          <li class="nav-subitem">
-            <a class="nav-link" (click)="scrollTo('#1-2-running-quality-control'); parent=1; child=2" [class.active]="(parent==1) && (child==2)">Running Quality Control</a>
-          </li>
-        </ul>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" (click)="scrollTo('#2-genome-assembly'); parent=2; child=0" [class.active]="(parent==2)">Genome Assembly</a>
-        <ul class="nav flex-column">
-          <li class="nav-subitem">
-            <a class="nav-link" (click)="scrollTo('#2-1-assembly'); parent=2; child=1" [class.active]="(parent==2) && (child==1)">Assembly</a>
-          </li>
-          <li class="nav-subitem">
-            <a class="nav-link" (click)="scrollTo('#2-2-quality-assessment'); parent=2; child=2" [class.active]="(parent==2) && (child==2)">Quality Assessment</a>
-          </li>
-          <li class="nav-subitem">
-            <a class="nav-link" (click)="scrollTo('#2-3-mapping-reads-to-assembly'); parent=2; child=3" [class.active]="(parent==2) && (child==3)">Mapping Reads to Assembly</a>
-          </li>
-          <li class="nav-subitem">
-            <a class="nav-link" (click)="scrollTo('#2-4-visualization'); parent=2; child=4" [class.active]="(parent==2) && (child==4)">Visualization</a>
-          </li>
-        </ul>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" (click)="scrollTo('#3-genome-annotation'); parent=3; child=0" [class.active]="(parent==3)">Genome Annotation</a>
-        <ul class="nav flex-column">
-          <li class="nav-subitem">
-            <a class="nav-link" (click)="scrollTo('#3-1-setting-up'); parent=3; child=1" [class.active]="(parent==3) && (child==1)">Setting Up</a>
-          </li>
-          <li class="nav-subitem">
-            <a class="nav-link" (click)="scrollTo('#3-2-running-annotation'); parent=3; child=2" [class.active]="(parent==3) && (child==2)">Running Annotation</a>
-          </li>
-          <li class="nav-subitem">
-            <a class="nav-link" (click)="scrollTo('#3-3-visualization'); parent=3; child=3" [class.active]="(parent==3) && (child==3)">Visualization</a>
-          </li> 
-        </ul>
-      </li>
-    </ul>
+  <div class="sidebar-header">
+    <img class="sidebar-logo" src="assets/img/logo.png" />
+    <div class="title">Introduction to Bioinformatics: Assembly and Annotation Hands-On</div>
+    <div class="version">v1.0</div>
   </div>
+  <ul class="nav flex-column">
+    <li class="nav-item">
+      <a class="nav-link" (click)="scrollTo('#1-quality-control'); parent=1; child=0" [class.active]="(parent==1)">Quality Control</a>
+      <ul class="nav flex-column">
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#1-1-setting-up'); parent=1; child=1" [class.active]="(parent==1) && (child==1)">Setting Up</a>
+        </li>
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#1-2-running-quality-control'); parent=1; child=2" [class.active]="(parent==1) && (child==2)">Running Quality Control</a>
+        </li>
+      </ul>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" (click)="scrollTo('#2-genome-assembly'); parent=2; child=0" [class.active]="(parent==2)">Genome Assembly</a>
+      <ul class="nav flex-column">
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#2-1-assembly'); parent=2; child=1" [class.active]="(parent==2) && (child==1)">Assembly</a>
+        </li>
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#2-2-quality-assessment'); parent=2; child=2" [class.active]="(parent==2) && (child==2)">Quality Assessment</a>
+        </li>
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#2-3-mapping-reads-to-assembly'); parent=2; child=3" [class.active]="(parent==2) && (child==3)">Mapping Reads to Assembly</a>
+        </li>
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#2-4-visualization'); parent=2; child=4" [class.active]="(parent==2) && (child==4)">Visualization</a>
+        </li>
+      </ul>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" (click)="scrollTo('#3-genome-annotation'); parent=3; child=0" [class.active]="(parent==3)">Genome Annotation</a>
+      <ul class="nav flex-column">
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#3-1-setting-up'); parent=3; child=1" [class.active]="(parent==3) && (child==1)">Setting Up</a>
+        </li>
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#3-2-running-annotation'); parent=3; child=2" [class.active]="(parent==3) && (child==2)">Running Annotation</a>
+        </li>
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#3-3-visualization'); parent=3; child=3" [class.active]="(parent==3) && (child==3)">Visualization</a>
+        </li> 
+      </ul>
+    </li>
+  </ul>
 </nav>
