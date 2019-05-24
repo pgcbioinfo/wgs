@@ -1,7 +1,7 @@
 <nav class="sidebar">
   <div class="sidebar-header">
     <img class="sidebar-logo" src="assets/img/logo.png" />
-    <div class="title">Introduction to Bioinformatics: Assembly and Annotation Hands-On</div>
+    <div class="title">Introduction to Bioinformatics: Assembly, Annotation and Variant Calling</div>
     <div class="version">v1.0</div>
   </div>
   <ul class="nav flex-column">
@@ -26,10 +26,10 @@
           <a class="nav-link" (click)="scrollTo('#2-2-quality-assessment'); parent=2; child=2" [class.active]="(parent==2) && (child==2)">Quality Assessment</a>
         </li>
         <li class="nav-subitem">
-          <a class="nav-link" (click)="scrollTo('#2-3-mapping-reads-to-assembly'); parent=2; child=3" [class.active]="(parent==2) && (child==3)">Mapping Reads to Assembly</a>
+          <a class="nav-link" (click)="scrollTo('#2-3-mapping-reads-to-assembly'); parent=2; child=2" [class.active]="(parent==2) && (child==3)">Mapping Reads to Assembly</a>
         </li>
         <li class="nav-subitem">
-          <a class="nav-link" (click)="scrollTo('#2-4-visualization'); parent=2; child=4" [class.active]="(parent==2) && (child==4)">Visualization</a>
+          <a class="nav-link" (click)="scrollTo('#2-4-visualization'); parent=2; child=2" [class.active]="(parent==2) && (child==4)">Visualization</a>
         </li>
       </ul>
     </li>
@@ -44,6 +44,57 @@
         </li>
         <li class="nav-subitem">
           <a class="nav-link" (click)="scrollTo('#3-3-visualization'); parent=3; child=3" [class.active]="(parent==3) && (child==3)">Visualization</a>
+        </li> 
+      </ul>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" (click)="scrollTo('#4-mapping-short-reads-to-reference-genome'); parent=4; child=0" [class.active]="(parent==4)">Mapping Short Reads to Reference Genome</a>
+      <ul class="nav flex-column">
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#4-1-setting-up'); parent=4; child=1" [class.active]="(parent==4) && (child==1)">Setting Up</a>
+        </li>
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#4-2-read-mapping'); parent=4; child=2" [class.active]="(parent==4) && (child==2)">Read Mapping</a>
+        </li>
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#4-3-visualization'); parent=4; child=3" [class.active]="(parent==4) && (child==3)">Visualization</a>
+        </li> 
+      </ul>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" (click)="scrollTo('#5-variant-calling'); parent=5; child=0" [class.active]="(parent==5)">Variant Calling</a>
+      <ul class="nav flex-column">
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#5-1-setting-up'); parent=5; child=1" [class.active]="(parent==5) && (child==1)">Setting Up</a>
+        </li>
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#5-2-alignment-post-processing'); parent=5; child=2" [class.active]="(parent==5) && (child==2)">Alignment Post-Processing</a>
+        </li>
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#5-3-preparing-the-reference'); parent=5; child=3" [class.active]="(parent==5) && (child==3)">Preparing the Reference</a>
+        </li> 
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#5-4-variant-calling-proper'); parent=5; child=4" [class.active]="(parent==5) && (child==4)">Variant Calling Proper</a>
+        </li> 
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#5-5-variant-annotation'); parent=5; child=5" [class.active]="(parent==5) && (child==5)">Variant Annotation</a>
+        </li>
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#5-6-visualization'); parent=5; child=6" [class.active]="(parent==5) && (child==6)">Visualization</a>
+        </li>
+      </ul>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" (click)="scrollTo('#6-alternate-reference-assembly-and-annotation'); parent=6; child=0" [class.active]="(parent==6)">Alternate Reference Assembly and Annotation</a>
+      <ul class="nav flex-column">
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#6-1-setting-up'); parent=6; child=1" [class.active]="(parent==6) && (child==1)">Setting Up</a>
+        </li>
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#6-2-assembly-and-annotation-proper'); parent=6; child=2" [class.active]="(parent==6) && (child==2)">Assembly and Annotation Proper</a>
+        </li>
+        <li class="nav-subitem">
+          <a class="nav-link" (click)="scrollTo('#6-3-visualization'); parent=6; child=3" [class.active]="(parent==6) && (child==3)">Visualization</a>
         </li> 
       </ul>
     </li>

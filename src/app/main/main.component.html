@@ -2,16 +2,15 @@
 ## 1. Quality Control
 </markdown>
 
-<markdown class="markdown" ngPreserveWhitespaces>
+<markdown ngPreserveWhitespaces>
 ### 1.1 Setting Up
 
-Copy raw *.fastq* files from */home/cfb/training/data/raw* to your home directory.
+Copy all data files from */home/training/data/workshop* to your home directory. 
 
 ```bash
-mkdir ~/data #Create data directory
-mkdir ~/qc #Create quality control directory
-cp /tmp/data/*fq ~/data #Copy data from repo to data in your home dir
-chmod 400 ~/data/* #Change data permissions to read-only
+cd ~
+cp -r /home/training/data/workshop data
+mkdir qc
 ```
 </markdown>
 
@@ -22,11 +21,11 @@ chmod 400 ~/data/* #Change data permissions to read-only
 
 Quality control and preprocessing of sequencing data are critical to obtaining high-quality and high-confidence variants in downstream data analysis. Data can suffer from adapter contamination, base content biases and overrepresented sequences. Even worse, library preparation and sequencing steps always involve errors and can cause inaccurate representations of original nucleic acid sequences.
 
-In the past, multiple tools were employed for Fastq data quality control and preprocessing. A typical combination was the use of [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) for quality control, [Cutadapt](https://cutadapt.readthedocs.io/en/stable/guide.html)  for adapter trimming and [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic) for read pruning and filtering. September this year, a tool called [Fastp](https://github.com/OpenGene/fastp) was created that does all these steps, and allows multi-threading which makes the processing of reads significantly faster.
+In the past, multiple tools were employed for Fastq data quality control and preprocessing. A typical combination was the use of [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) for quality control, [Cutadapt](https://cutadapt.readthedocs.io/en/stable/guide.html)  for adapter trimming and [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic) for read pruning and filtering. September this year, a tool called [Fastp](https://github.com/OpenGene/fastp) was created that does all these steps, and allows multi-threading which makes the processing of reads significantly faster. 
 
 ```bash
-fastp --in1 ~/data/reads1.fq --out1 ~/qc/reads1_fastp.fq --in2 ~/data/reads2.fq \
-    --out2 ~/qc/reads2_fastp.fq
+fastp --in1 ~/data/reads/reads1.fq --out1 ~/qc/reads1_fastp.fq \
+    --in2 ~/data/reads/reads2.fq --out2 ~/qc/reads2_fastp.fq
 mv fastp.* ~/qc
 ```
 
@@ -35,23 +34,19 @@ Open the *.html* files using a browser.
 **Guide Questions:**
 
 * Is the initial data quality good enough for downstream analysis?
+* Was there adapter contamination remaining in the raw sequence reads?
 * How many sequence reads are there initially?
-* What is the initial sequence length?
-* Are there still adapter contamination in the raw sequence reads?
-* How many paired sequences were left after quality control?
-* How many orphaned reads were left after quality control?
-* What is the minimum read length after quality control?
-* What is the maximum read length after quality control?
+* How many reads are left after filtering?
 * How many reads (and what percent of the total number of reads) were filtered out after quality control?
 
 </markdown>
 
 <markdown ngPreserveWhitespaces>
 ## 2. Genome Assembly
+
 </markdown>
 
 <markdown ngPreserveWhitespaces>
-
 ### 2.1 Assembly
 
 #### Tool: SPAdes
@@ -64,7 +59,9 @@ spades.py -1 ~/qc/reads1_fastp.fq -2 ~/qc/reads2_fastp.fq -o ~/assembly -t 4 \
 ```
 
 SPAdes creates two assemblies, **contigs.fasta** and **scaffolds.fasta**. They will be found in the *__~/assembly__* directory.
+</markdown>
 
+<markdown ngPreserveWhitespaces>
 ### 2.2 Quality Assessment
 
 #### Tool: QUAST
@@ -80,28 +77,26 @@ quast.py -o ~/assessment/scaffolds -t 4 ~/assembly/scaffolds.fasta
 
 **Guide Questions:**
 
-* What is the best assembly based on total assembly length?
-* What is the best assembly based on the number of contigs?
-* What is the best assembly based on the length of the largest contig?
-* What is the best assembly based on N50?
+1. What is the best assembly based on total assembly length?
+2. What is the best assembly based on the number of contigs?
+3. What is the best assembly based on the length of the largest contig?
+4. What is the best assembly based on N50?
 </markdown>
 
 <markdown ngPreserveWhitespaces>
-
 ### 2.3 Mapping Reads to Assembly
 
 #### Tools: Bowtie 2, SAMtools
 
 At this point, your assembly is complete - you can move on to other steps like genome annotation. But for instruction purposes, it helps to visualize the assembly you created. To do this, first we'll map (i.e. align) the filtered reads to the SPAdes assembly you created, using a suite of tools called [Bowtie 2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml). The tool `bowtie2-build` indexes the reference sequence, while `bowtie2` performs the actual alignment.
 
-The output will be a file called **spades_assembly.sam**, which is in the SAM (Sequence Alignment Map) format. Create and go into the directory *__~/mapping__* before running the Bowtie 2 commands. This is where the output will be located.
+The output will be a file called **assembly.sam**, which is in the SAM (Sequence Alignment Map) format. Create and go into the directory *__~/assembly/mapping__* before running the Bowtie 2 commands. This is where the output will be located.
 
 ```bash
-mkdir ~/mapping
-cd ~/mapping
-bowtie2-build --threads 4 ~/assembly/scaffolds.fasta spades_assembly
-bowtie2 -p 4 -x spades_assembly -1 ~/qc/reads1_fastp.fq -2 ~/qc/reads2_fastp.fq \
-    -S spades_assembly.sam
+mkdir ~/assembly/mapping
+cd ~/assembly/mapping
+bowtie2-build --threads 4 ~/assembly/scaffolds.fasta assembly
+bowtie2 -p 4 -x assembly -1 ~/qc/reads1_fastp.fq -2 ~/qc/reads2_fastp.fq -S assembly.sam
 ```
 
 Next, we'll pre-process the alignment for visualization, using the tool suite [SAMtools](http://www.htslib.org/). We'll be using the following utilities:
@@ -110,19 +105,18 @@ Tool | What it does
 ---- | ------------
 `samtools view` | Convert to BAM (Binary Alignment Map) format
 `samtools sort` | Sort BAM file based on position in alignment
-`samtools index` | Create an index (`.bai` file) for fast look-up
+`samtools index` | Create an index (`.bai` file) for fast look-up 
 
-Here are the commands (make sure you're still in *__~/mapping__*):
+Here are the commands (make sure you're still in *__~/assembly/mapping__*):
 
 ```bash
-samtools view -bS spades_assembly.sam > spades_assembly.bam
-samtools sort spades_assembly.bam -o spades_assembly.sorted.bam
-samtools index spades_assembly.sorted.bam
+samtools view -b assembly.sam -o assembly.bam
+samtools sort assembly.bam -o assembly_sorted.bam
+samtools index assembly_sorted.bam
 ```
 </markdown>
 
 <markdown ngPreserveWhitespaces>
-
 ### 2.4 Visualization
 
 #### Tool: Tablet
@@ -136,8 +130,9 @@ tablet
 Then simply load the aligned reads, along with the assembled genome as reference:
 
 * Tablet -> Open Assembly
-    + Primary assembly file: `~/mapping/spades_assembly.sorted.bam`
+    + Primary assembly file: `~/assembly/mapping/assembly_sorted.bam`
     + Reference/consensus file: `~/assembly/scaffolds.fasta`
+    + Click "Open"
 
 #### Tool: Bandage
 
@@ -150,17 +145,18 @@ Bandage
 * Bandage -> File -> Load Graph -> `~/assembly/assembly_graph.fastg`
 * Click on 'Draw graph'
 
-See [this site](https://github.com/rrwick/Bandage/wiki/Getting-started) for instructions on how to rotate and manipulate the assembly graph. Try experimenting with the different visualization features of the software.
+**Guide Question:**
 
+1. SPAdes creates assemblies for different k-mers (look for the directories named  *__K21__*, *__K55__*, etc. in *__~/assembly__*). Based on visual appearance, what value of *k* resulted in the best de Bruijn graph?
+
+See [this site](https://github.com/rrwick/Bandage/wiki/Getting-started) for instructions on how to rotate and manipulate the assembly graph. Try experimenting with the different visualization features of the software. 
 </markdown>
 
 <markdown ngPreserveWhitespaces>
-
 ## 3. Genome Annotation
 </markdown>
 
 <markdown ngPreserveWhitespaces>
-
 ### 3.1 Setting Up
 
 First, we will create the directory *__annot__* inside our home directory. We will then move to this directory. This will be our new work directory.
@@ -172,14 +168,13 @@ cd ~/annot
 </markdown>
 
 <markdown ngPreserveWhitespaces>
-
 ### 3.2 Running Annotation
 
 #### Tool: Prokka
 
 To annotate our genome assembly, we will use the tool [Prokka](http://www.vicbioinformatics.com/software.prokka.shtml). This tool is designed to coordinate a number of pre-existing tools in order to reliably predict genomic features for bacterial, archaeal, and viral sequences.
 
-For this exercise, we will use the assembly generated using the tool SPAdes. The output files, all of which will contain the prefix *__prokka__*, will be placed inside the directory *__~/annot/prokka__*. The procedure will use a maximum of four (4) computing cores.
+For this exercise, we will use the assembly generated using the tool SPAdes. The output files, all of which will contain the prefix **prokka**, will be placed inside the directory *__~/annot/prokka__*. The procedure will use a maximum of four (4) computing cores.     
 
 ```bash
 prokka --prefix prokka --cpus 4 ~/assembly/scaffolds.fasta
@@ -204,25 +199,24 @@ After running Prokka, the following output files will be generated:
 Output File | Content Description
 ----------- | -------------------
 `*.fna`       | FASTA file of original input contigs (nucleotide)
-`*.faa`       | FASTA file of translated coding genes (protein)
-`*.ffn`       | FASTA file of all genomic features (nucleotide)
+`*.faa`       | FASTA file of translated coding genes (protein) 
+`*.ffn`       | FASTA file of all genomic features (nucleotide) 
 `*.fsa`       | Contig sequences for submission (nucleotide)
-`*.tbl`       | Feature table for submission
+`*.tbl`       | Feature table for submission 
 `*.sqn`       | Sequin editable file for submission
-`*.gbk`       | Genbank file containing sequences and annotations
-`*.gff`       | GFF v3 file containing sequences and annotations
-`*.log`         | Log file of Prokka processing output
-`*.txt`             | Annotation summary statistics
+`*.gbk`       | Genbank file containing sequences and annotations 
+`*.gff`       | GFF v3 file containing sequences and annotations 
+`*.log`     	| Log file of Prokka processing output 
+`*.txt` 	    | Annotation summary statistics 
 
 </markdown>
 
 <markdown ngPreserveWhitespaces>
-
 ### 3.3 Visualization
 
 #### Tool: Artemis
 
-We can view the annotation by loading the *__prokka.gff__* output into the tool [Artemis](https://www.sanger.ac.uk/science/tools/artemis). We can start Artemis by invoking the following command:
+We can view the annotation by loading the **prokka.gff** output into the tool [Artemis](https://www.sanger.ac.uk/science/tools/artemis). We can start Artemis by invoking the following command:
 
 ```bash
 art
@@ -241,6 +235,313 @@ To learn more about how to explore annotations in Artemis, you can follow [this 
 3. How many tRNA genes were predicted?
 4. Do you think the assemblies are correct based on the annotated genes? Why or why not? How can you check if the annotations are correct?
 
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+## 4. Mapping Short Reads to Reference Genome
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+### 4.1 Setting Up
+
+First, we will create a new directory in our home directory called *__mapping__*. Move here, this will be our new work directory.
+
+```bash
+mkdir ~/mapping
+cd ~/mapping
+```
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+### 4.2 Read Mapping
+
+#### Tools: BWA, SAMtools
+
+As we did during the de novo assembly exercise, we will be using a read mapping software package to index a reference sequence and map our reads. But this time, instead of using Bowtie 2, we will be using [BWA](http://bio-bwa.sourceforge.net/), and our reference will be *__~/data/ref/ecoli.fasta__*. As before, there is an indexing step and a read mapping step.
+
+```bash
+bwa index ~/data/ref/ecoli.fasta    #Index files will be created in ~/data/ref/
+bwa mem ~/data/ref/ecoli.fasta ~/qc/reads1_fastp.fq ~/qc/reads2_fastp.fq \
+    > ~/mapping/alignment.sam
+```
+
+Before we proceed, take a look inside the resulting SAM file. Examine its headers and its FLAG values.
+
+```bash
+less -S ~/mapping/alignment.sam
+```
+
+**Guide Questions:**
+
+1. How long is the reference genome?
+2. What SAM flags are you observing? Are these what you'd expect in a good alignment?
+
+Once again, we will pre-process our alignment using SAMtools, following the same steps as we did before.
+
+```bash
+samtools view -b alignment.sam -o alignment.bam
+samtools sort alignment.bam -o alignment_sorted.bam
+samtools index alignment_sorted.bam
+```
 
 </markdown>
 
+<markdown ngPreserveWhitespaces>
+### 4.3 Visualization
+
+#### Tool: Tablet
+
+Now that we have aligned the reads to the reference and pre-processed them, we can again proceed to visualization, using  [Tablet](https://ics.hutton.ac.uk/tablet/). We can start Tablet by invoking a simple command:
+
+```bash
+tablet
+```
+
+Then simply load the aligned reads, along with the referece genome:
+
+* Tablet -> Open Assembly
+    + Primary assembly file: `~/mapping/alignment_sorted.bam`
+    + Reference/consensus file: `~/data/ref/ecoli.fasta`
+    + Click "Open"
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+## 5. Variant Calling 
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+### 5.1 Setting Up
+
+First, we will create the directory *__variants__* inside our home directory. We will then move to this directory. This will be our new work directory.
+
+```bash
+mkdir ~/variants
+cd ~/variants
+```
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+### 5.2 Alignment Post-Processing
+
+Before we do the actual variant calling procedure, we will first implement a series of steps to process the raw mapping output into a format readily usable for variant calling. The processing will be mostly done using the [PICARD](https://broadinstitute.github.io/picard/) toolkit. 
+
+*__NOTE:__* In this exercise, we will call PICARD directly from the command line, with the command `picard`. However, in other systems, you may need to call PICARD through Java, *i.e.,* `java -jar picard.jar`.
+
+The first step will be to *sort* the SAM file according to reference coordinates. By doing so, the subsequent algorithms will run more efficiently. At the same time, we will convert the output to BAM format, as we did before using SAMtools.
+
+```bash
+picard SortSam \
+INPUT=~/mapping/alignment.sam \
+OUTPUT=~/variants/alignment.sorted.bam \
+SO=coordinate \
+VALIDATION_STRINGENCY=SILENT
+```
+
+The second step is to *mark duplicates*. In this sense, duplicates are reads that map to exactly the same region in the reference sequence. These reads most probably arise as artifacts of sequencing (e.g., optical duplicates, PCR duplicates) and are therefore deemed redundant. To avoid error amplification and miscalculation of coverage depth, duplicate reads must be handled properly in the subsequent steps.
+
+```bash
+picard MarkDuplicates \
+INPUT=~/variants/alignment.sorted.bam \
+OUTPUT=~/variants/alignment.mdup.bam \
+METRICS_FILE=~/variants/mdup.metrics \
+ASSUME_SORTED=TRUE \
+VALIDATION_STRINGENCY=SILENT
+```
+
+The third alignment post-processing step is the addition of *read groups*. This is not as crucial when dealing with a single sample, but is required by the variant caller to determine from which sequencing run the reads are from. This can be important when running variant calling for samples coming from multiple sequencing runs.
+
+```bash
+picard AddOrReplaceReadGroups \
+INPUT=~/variants/alignment.mdup.bam \
+OUTPUT=~/variants/alignment.rg.bam \
+SO=coordinate \
+RGID=lib1 RGLB=lib1 RGPL=Illumina RGPU=lib1 RGSM=lib1 \
+VALIDATION_STRINGENCY=SILENT
+```
+
+The fourth and final alignment post-processing step is to *index* the BAM file, which is required for variant calling later.
+```bash
+picard BuildBamIndex \
+INPUT=~/variants/alignment.rg.bam
+```
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+### 5.3 Preparing the Reference
+
+Similar to indexing the reference prior to read mapping, we also need to create a separate reference *fasta index* and *sequence dictionary* prior to variant calling. This is needed for the algorithm to run efficiently.
+
+To create a reference sequence dictionary, we will also use PICARD.
+```bash
+picard CreateSequenceDictionary \
+REFERENCE=~/data/ref/ecoli.fasta \
+OUTPUT=~/data/ref/ecoli.dict
+```
+
+To create the reference fasta index, we will use [SAMtools](http://samtools.sourceforge.net/).
+```bash
+samtools faidx ~/data/ref/ecoli.fasta
+```
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+### 5.4 Variant Calling Proper
+
+We will now peform the variant calling workflow using the [Genome Analysis Toolkit version 4 (GATK4)](https://software.broadinstitute.org/gatk/). 
+
+We can directly implement *variant calling* using GATK's HaplotypeCaller tool. This step will output a VCF file.
+```bash
+gatk HaplotypeCaller \
+-R ~/data/ref/ecoli.fasta \
+-I ~/variants/alignment.rg.bam \
+-O ~/variants/variants.raw.vcf
+```
+
+In cases where a set of *known variants* is available (also in VCF format), using the information from this variant database for *base quality score recalibration* is recommended. Since the sequencing reaction may introduce systematic biases in base quality scores, this step basically predicts covariances in base call qualities and generates a recalibration model to remove the observed biases -- thereby giving more accurate base call qualities. Note that the variant caller considers the quality of bases when deciding if a variant will be called. 
+
+To demonstrate, we will use the VCF file generated from the previous step as our set of known variants. We will now generate a recalibration model for the set of reads.
+```bash
+gatk BaseRecalibrator \
+-R ~/data/ref/ecoli.fasta \
+-I ~/variants/alignment.rg.bam \
+-O ~/variants/recal.1.table \
+-known-sites ~/variants/variants.raw.vcf
+```
+
+We will then apply the recalibration model to generate a new BAM file with recalibrated base quality scores.
+```bash
+gatk ApplyBQSR \
+-R ~/data/ref/ecoli.fasta \
+-I ~/variants/alignment.rg.bam \
+-O ~/variants/alignment.recal.bam \
+-bqsr ~/variants/recal.1.table
+```
+
+Just to see if the previous model applied is good enough, we will run the recalibrator again on the recalibrated BAM file.
+```bash
+gatk BaseRecalibrator \
+-R ~/data/ref/ecoli.fasta \
+-I ~/variants/alignment.recal.bam \
+-O ~/variants/recal.2.table \
+-known-sites ~/variants/variants.raw.vcf
+```
+
+Let's check if the recalibration was able to improve base quality scores through plots.
+```bash
+gatk AnalyzeCovariates \
+-before ~/variants/recal.1.table \
+-after ~/variants/recal.2.table \
+-plots recal.plot.pdf
+```
+
+Using the alignment file with recalibrated base qualities, we will now refine the variant calls by doing the *final variant calling* step.
+```bash
+gatk HaplotypeCaller \
+-R ~/data/ref/ecoli.fasta \
+-I ~/variants/alignment.recal.bam \
+-O ~/variants/variants.final.vcf
+```
+
+The final output for variant calling is a VCF file.
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+### 5.5 Variant Annotation
+
+In most cases, we also want to predict what features in the genome are affected by the variants and what impacts these particular changes will have. To do this, we will use the tool [SnpEff](http://snpeff.sourceforge.net/). 
+
+```bash
+snpEff ecoli ~/variants/variants.final.vcf > \
+~/variants/variants.ann.vcf
+```
+
+This step will output a VCF file with annotation fields.
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+### 5.6 Visualization
+
+In order for us to visualize the variants, we will use the tool [Tablet](https://ics.hutton.ac.uk/tablet/) to view the alignment and check for the variant positions.
+```bash
+tablet
+```
+
+A window will appear and we will open the alignment file from there.
+
+* Tablet -> Open Assembly
+    + Primary assembly file: `~/variants/alignment.recal.bam`
+    + Reference/consensus file: `~/data/ref/ecoli.fasta`
+    + Click "Open"
+
+
+**Guide Questions:**
+
+1. How many variants were called?
+2. How many predicted high impact mutations are there?
+3. Are there short insertions or deletions?
+4. What is the ratio of non-synonymous vs. synonymous mutations? What can you imply from this value?
+5. Were the variants called accurately? How can you tell?
+
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+## 6. Alternate Reference Assembly and Annotation
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+### 6.1 Setting Up
+
+First, we will create the directory *__altref__* inside our home directory. We will then move to this directory. This will be our new work directory.
+```bash
+mkdir ~/altref
+cd ~/altref
+```
+
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+### 6.2 Assembly and Annotation Proper
+
+For this step, we will use [RGAAT](https://sourceforge.net/projects/rgaat/files/), which stands for Reference based Genome Assembly and Annotation Tool. This tool allows us to generate an alternate reference sequence -- reference sequence with the variant positions substituted with alternate alleles -- and transfer the reference annotations to the alternate reference sequence. 
+```bash
+RGAAT.pl -g ~/data/ref/ecoli.fasta \
+-a ~/data/ref/ecoli.gff \
+-v ~/variants/variants.ann.vcf \
+-o ~/altref/altref
+```
+
+This step will output a number of files prefixed with the value under the `-o` parameter (in this case, *"altref"*). 
+
+Output File |   | Content Description
+------------|---|--------------------------------------
+`{{'{'}}prefix{{'}'}}.anno_update` |   | updated annotation file (same format as the input annotation)
+`{{'{'}}prefix{{'}'}}.genome_update` |   | aternate reference sequence file in FASTA format
+`{{'{'}}prefix{{'}'}}.pos_change` |   | list of all the positions where changes have been made
+`*.vcf` |   | VCF file containing variants relative to the alternate assembly
+`{{'{'}}prefix{{'}'}}*.svg` |   | image file of the sequence with markers for the variant positions
+
+*__NOTE:__* Do not open the SVG file as it might cause the workstation to hang.
+</markdown>
+
+<markdown ngPreserveWhitespaces>
+### 6.3 Visualization
+
+We will now visulaize the alternate reference assembly using Tablet.
+```bash
+tablet
+```
+
+A window will appear and we will open the alignment file from there. However, this time around, instead of the reference fasta, we will use the alternate assembly as reference.
+
+* Tablet -> Open Assembly
+    + Primary assembly file: `~/variants/alignment.recal.bam`
+    + Reference/consensus file: `~/altref/altref.genome_update`
+    + Click "Open"
+
+
+**Guide Questions**
+
+1. How many positions differ between the reference sequence and the alternate reference assembly?
+2. Viewing the alignment using the alternate assembly as reference, are the variants still present?
+
+</markdown>
